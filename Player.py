@@ -45,7 +45,7 @@ class Player:
                 
                 if len(parsed_packet['LEGALACTIONS']) == 1:
                     # since we only have one legal action, we take it no matter what
-                    s.send(parsed_packet['LEGALACTIONS'][0])
+                    s.send(parsed_packet['LEGALACTIONS'][0] + "\n")
                     print "pbot_ took only legal action: " + parsed_packet['LEGALACTIONS'][0]
                 else:
                     equity = pbots_calc.calc(myhand + ":xxx", ''.join(parsed_packet['BOARDCARDS']), '', 1000).ev[0]

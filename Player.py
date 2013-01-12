@@ -29,7 +29,7 @@ class Player:
 
             # Here is where you should implement code to parse the packets from
             # the engine and act on it. We are just printing it instead.
-            print data
+            #print data
             
             dataSplit = data.split()
 
@@ -41,15 +41,76 @@ class Player:
             # character (\n) or your bot will hang!
             word = dataSplit[0]
             if word == "GETACTION":
-            	parsed_packet = parse_getaction.parse_list(dataSplit)
-            	equity = pbots_calc.calc(myhand + ":xxx", ''.join(parsed_packet['BOARDCARDS']), '', 5000)
-            	
-            	print "pbot_ my equity: " + str(equity.ev[0])
-            	
-                s.send("CHECK\n")
+                parsed_packet = parse_getaction.parse_list(dataSplit)
+                
+                if len(parsed_packet['LEGALACTIONS']) == 0:
+                    # since we only have one legal action, we take it no matter what
+                    s.send(parsed_packet['LEGALACTIONS'][0])
+                    print "pbot_ took only legal action: " + parsed_packet['LEGALACTIONS'][0]
+                else:
+                    equity = pbots_calc.calc(myhand + ":xxx", ''.join(parsed_packet['BOARDCARDS']), '', 1000).ev[0]
+                    pot_size = parsed_packet['POTSIZE']
+                    
+                    # check how much the opponent raised by, if any
+                    amountRaised = 0
+                    
+                    for action in parsed_packet['LASTACTIONS'][1:]:
+                        actionSplit = action.split(":")
+                        
+                        if actionSplit[0] == "BET" or actionSplit[0] == "RAISE":
+                            amountRaised += int(actionSplit[1])
+                    
+                    # check min/max we can bet/raise by
+                    betType = "BET"
+                    minBet = 0
+                    maxBet = 0
+                    
+                    for action in parsed_packet['LEGALACTIONS']:
+                        actionSplit = action.split(":")
+                        
+                        if actionSplit[0] == "BET" or actionSplit[0] == "RAISE":
+                            if actionSplit[0] == "RAISE":
+                                betType = "RAISE"
+                            
+                            minBet = int(actionSplit[1])
+                            maxBet = int(actionSplit[2])
+                    
+                    # print out parameters for this turn
+                    print "================="
+                    print "pbot_ my equity: " + str(equity)
+                    print "pbot_ opponent raised: " + str(amountRaised)
+                    print "pbot_ pot: " + str(pot_size)
+                    print "pbot_ bettype: " + betType
+                    print "pbot_ minbet: " + str(minBet)
+                    print "pbot_ maxbet: " + str(maxBet)
+                    print "================="
+                    
+                    # based on pot size and equity, determine whether to bet or call or check/fold
+                    myAction = "CHECK"
+                    
+                    if pot_size < 50:#
+                        if equity > 0.5:
+                            # raise up to 5
+                            mybet = min(maxBet, 5)
+                            myAction = betType + ":" + str(mybet)
+                        elif equity > 0.1:
+                            myAction = "CALL"
+                    elif pot_size < 100:
+                        if equity > 0.9:
+                            # raise up to 5
+                            mybet = min(maxBet, 5)
+                            myAction = betType + ":" + str(mybet)
+                        elif equity > 0.55:
+                            myAction = "CALL"
+                    else:
+                        if equity > 0.65:
+                            myAction = "CALL"
+                    
+                    print "decided to: " + myAction
+                    s.send(myAction + "\n")
             elif word == "NEWHAND":
-            	myhand = dataSplit[3] + dataSplit[4] + dataSplit[5]
-            	print "pbot_ got new hand: " + myhand
+                myhand = dataSplit[3] + dataSplit[4] + dataSplit[5]
+                print "pbot_ got new hand: " + myhand
             elif word == "REQUESTKEYVALUES":
                 # At the end, the engine will allow your bot save key/value pairs.
                 # Send FINISH to indicate you're done.

@@ -1,6 +1,8 @@
 import argparse
 import socket
 import sys
+from pbot import parse_getaction
+from pbot import pbots_calc
 
 """
 Simple example pokerbot, written in python.
@@ -14,6 +16,9 @@ class Player:
         # Get a file-object for reading packets from the socket.
         # Using this ensures that you get exactly one packet per read.
         f_in = input_socket.makefile()
+        
+        myhand = ''
+        
         while True:
             # Block until the engine sends us a packet.
             data = f_in.readline().strip()
@@ -25,6 +30,8 @@ class Player:
             # Here is where you should implement code to parse the packets from
             # the engine and act on it. We are just printing it instead.
             print data
+            
+            dataSplit = data.split()
 
             # When appropriate, reply to the engine with a legal action.
             # The engine will ignore all spurious responses.
@@ -32,10 +39,17 @@ class Player:
             # illegal action.
             # When sending responses, terminate each response with a newline
             # character (\n) or your bot will hang!
-            word = data.split()[0]
+            word = dataSplit[0]
             if word == "GETACTION":
-                # Currently CHECK on every move. You'll want to change this.
+            	parsed_packet = parse_getaction.parse_list(dataSplit)
+            	equity = pbots_calc.calc(myhand + ":xxx", ''.join(parsed_packet['BOARDCARDS']), '', 5000)
+            	
+            	print "pbot_ my equity: " + str(equity.ev[0])
+            	
                 s.send("CHECK\n")
+            elif word == "NEWHAND":
+            	myhand = dataSplit[3] + dataSplit[4] + dataSplit[5]
+            	print "pbot_ got new hand: " + myhand
             elif word == "REQUESTKEYVALUES":
                 # At the end, the engine will allow your bot save key/value pairs.
                 # Send FINISH to indicate you're done.

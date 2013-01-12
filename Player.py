@@ -43,7 +43,7 @@ class Player:
             if word == "GETACTION":
                 parsed_packet = parse_getaction.parse_list(dataSplit)
                 
-                if len(parsed_packet['LEGALACTIONS']) == 0:
+                if len(parsed_packet['LEGALACTIONS']) == 1:
                     # since we only have one legal action, we take it no matter what
                     s.send(parsed_packet['LEGALACTIONS'][0])
                     print "pbot_ took only legal action: " + parsed_packet['LEGALACTIONS'][0]
@@ -83,6 +83,7 @@ class Player:
                     print "pbot_ bettype: " + betType
                     print "pbot_ minbet: " + str(minBet)
                     print "pbot_ maxbet: " + str(maxBet)
+                    print "pbot_ legalactions: " + str(parsed_packet['LEGALACTIONS'])
                     print "================="
                     
                     # based on pot size and equity, determine whether to bet or call or check/fold

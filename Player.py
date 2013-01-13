@@ -3,6 +3,7 @@ import socket
 import sys
 from pbot import parse_getaction
 from pbot import pbots_calc
+from pbot import precompute_calc
 
 """
 Simple example pokerbot, written in python.
@@ -65,7 +66,12 @@ class Player:
 					s.send(parsed_packet['LEGALACTIONS'][0] + "\n")
 					print "pbot_ took only legal action: " + parsed_packet['LEGALACTIONS'][0]
 				else:
-					equity = pbots_calc.calc(myhand + ":xxx", ''.join(parsed_packet['BOARDCARDS']), '', 1000).ev[0]
+					if parsed_packet['BOARDCARDS']:
+						equity = pbots_calc.calc(myhand + ":xxx", ''.join(parsed_packet['BOARDCARDS']), '', 1000).ev[0]
+					else:
+						equity = precompute_calc.calc(myhand)
+						print "precomputed"
+					
 					pot_size = parsed_packet['POTSIZE']
 					
 					# check how much the opponent raised by, if any
@@ -143,6 +149,9 @@ if __name__ == '__main__':
 	parser.add_argument('-h', dest='host', type=str, default='localhost', help='Host to connect to, defaults to localhost')
 	parser.add_argument('port', metavar='PORT', type=int, help='Port on host to connect to')
 	args = parser.parse_args()
+	
+	# Do preloading here
+	precompute_calc.load()
 
 	# Create a socket connection to the engine.
 	print 'Connecting to %s:%d' % (args.host, args.port)

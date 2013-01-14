@@ -1,6 +1,8 @@
 import argparse
 import socket
 import sys
+import threading
+import time
 from pbot import parse_getaction
 from pbot import pbots_calc
 from pbot import precompute_calc
@@ -12,11 +14,17 @@ This is an example of a bare bones pokerbot. It only sets up the socket
 necessary to connect with the engine and then always returns the same action.
 It is meant as an example of how a pokerbot should communicate with the engine.
 """
-class Player:
-	def run(self, input_socket):
+class Player(threading.Thread):
+	input_socket = None
+	
+	def __init__(self, input_socket):
+		super(Player, self).__init__()
+		self.input_socket = input_socket
+	
+	def run(self):
 		# Get a file-object for reading packets from the socket.
 		# Using this ensures that you get exactly one packet per read.
-		f_in = input_socket.makefile()
+		f_in = self.input_socket.makefile()
 		
 		myhand = ''
 		
@@ -161,5 +169,19 @@ if __name__ == '__main__':
 		print 'Error connecting! Aborting'
 		exit()
 
-	bot = Player()
-	bot.run(s)
+	bot = Player(s)
+	#bot.start()
+	bot.run()
+	
+	#time.sleep(0.005)
+	
+	# Run bot on next port too for easier testing.
+	#print 'Connecting to %s:%d' % (args.host, int(args.port)+1)
+	#try:
+	#s2 = socket.create_connection((args.host, int(args.port)+1))
+	#bot2 = Player(s2)
+	#bot2.start()
+	#except Exception as e:
+		#print 'Error test bot! Aborting'
+		#exit()
+

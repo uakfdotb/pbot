@@ -1,4 +1,9 @@
-def parse_list(ga_list):
+def parse_list(data):
+    if isinstance(data, basestring):
+        ga_list=data.split()
+    else:
+        ga_list = data
+    
     comp_dict={}
     temp_list=[]
     #Parse the initial variables.

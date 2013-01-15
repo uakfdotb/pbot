@@ -1,15 +1,24 @@
 import argparse
 import socket
 import sys
+import threading
+import time
 from pbot import parse_getaction
 from pbot import pbots_calc
+from pbot import precompute_calc
 
 
-class Player:
-	def run(self, input_socket):
+class Player(threading.Thread):
+	input_socket = None
+	
+	def __init__(self, input_socket):
+		super(Player, self).__init__()
+		self.input_socket = input_socket
+	
+	def run(self):
 		# Get a file-object for reading packets from the socket.
 		# Using this ensures that you get exactly one packet per read.
-		f_in = input_socket.makefile()
+		f_in = self.input_socket.makefile()
 		
 		myhand = ''
 		
@@ -42,7 +51,12 @@ class Player:
 					s.send(parsed_packet['LEGALACTIONS'][0] + "\n")
 					print "pbot_ took only legal action: " + parsed_packet['LEGALACTIONS'][0]
 				else:
-					equity = pbots_calc.calc(myhand + ":xxx", ''.join(parsed_packet['BOARDCARDS']), '', 1000).ev[0]
+					if parsed_packet['BOARDCARDS']:
+						equity = pbots_calc.calc(myhand + ":xxx", ''.join(parsed_packet['BOARDCARDS']), '', 1000).ev[0]
+					else:
+						equity = precompute_calc.calc(myhand)
+						print "precomputed"
+					
 					pot_size = parsed_packet['POTSIZE']
 					
 					# check how much the opponent raised by, if any
@@ -165,6 +179,9 @@ if __name__ == '__main__':
 	parser.add_argument('-h', dest='host', type=str, default='localhost', help='Host to connect to, defaults to localhost')
 	parser.add_argument('port', metavar='PORT', type=int, help='Port on host to connect to')
 	args = parser.parse_args()
+	
+	# Do preloading here
+	precompute_calc.load()
 
 	# Create a socket connection to the engine.
 	print 'Connecting to %s:%d' % (args.host, args.port)
@@ -174,5 +191,18 @@ if __name__ == '__main__':
 		print 'Error connecting! Aborting'
 		exit()
 
-	bot = Player()
-	bot.run(s)
+	bot = Player(s)
+	#bot.start()
+	bot.run()
+	
+	#time.sleep(0.005)
+	
+	# Run bot on next port too for easier testing.
+	#print 'Connecting to %s:%d' % (args.host, int(args.port)+1)
+	#try:
+	#s2 = socket.create_connection((args.host, int(args.port)+1))
+	#bot2 = Player(s2)
+	#bot2.start()
+	#except Exception as e:
+		#print 'Error test bot! Aborting'
+		#exit()

@@ -4,13 +4,7 @@ import sys
 from pbot import parse_getaction
 from pbot import pbots_calc
 
-"""
-Simple example pokerbot, written in python.
 
-This is an example of a bare bones pokerbot. It only sets up the socket
-necessary to connect with the engine and then always returns the same action.
-It is meant as an example of how a pokerbot should communicate with the engine.
-"""
 class Player:
 	def run(self, input_socket):
 		# Get a file-object for reading packets from the socket.
@@ -42,23 +36,6 @@ class Player:
 			word = dataSplit[0]
 			if word == "GETACTION":
 				parsed_packet = parse_getaction.parse_list(dataSplit)
-				
-				c1 = myhand[:2]
-				c2 = myhand[2:4]
-				c3 = myhand[4:]
-				hand = c1+c2+c3
-			
-			# calculated all the equities minus each card
-				equity_0 = pbots_calc.calc(c2+c3 + ":xxx", ''.join(parsed_packet['BOARDCARDS']), '', 1000).ev[0]
-				equity_1 = pbots_calc.calc(c1+c3 + ":xxx", ''.join(parsed_packet['BOARDCARDS']), '', 1000).ev[0]
-				equity_2 = pbots_calc.calc(c1+c2 + ":xxx", ''.join(parsed_packet['BOARDCARDS']), '', 1000).ev[0]
-
-				if equity_0 >= equity_1 and equity_0 >= equity_2:
-					print ("pbot_updated hand " + c2+c3)
-				elif equity_1 >= equity_0 and equity_1 >= equity_2:
-					print ("pbot_updated hand " + c1+c3)
-				elif equity_2 >= equity_0 and equity_2 >= equity_1:
-					print ("pbot_updated hand " + c1+c2)
 
 				if len(parsed_packet['LEGALACTIONS']) == 0:
 					# since we only have one legal action, we take it no matter what
@@ -70,6 +47,7 @@ class Player:
 					
 					# check how much the opponent raised by, if any
 					amountRaised = 0
+					canDiscard = False
 					
 					for action in parsed_packet['LASTACTIONS'][1:]:
 						actionSplit = action.split(":")
@@ -88,9 +66,12 @@ class Player:
 						if actionSplit[0] == "BET" or actionSplit[0] == "RAISE":
 							if actionSplit[0] == "RAISE":
 								betType = "RAISE"
-							
+								
+
 							minBet = int(actionSplit[1])
 							maxBet = int(actionSplit[2])
+						elif actionSplit[0] == "DISCARD":
+							canDiscard = True
 					
 					# print out parameters for this turn
 					print "================="
@@ -104,27 +85,68 @@ class Player:
 					
 					# based on pot size and equity, determine whether to bet or call or check/fold
 					myAction = "CHECK"
-					
+
 					if pot_size < 50:#
-						if equity > 0.5:
+						if equity > 0.55:
 							# raise up to 5
-							mybet = min(maxBet, 5)
+							mybet = min(maxBet,5)
 							myAction = betType + ":" + str(mybet)
-						elif equity > 0.1:
+						elif equity > 0.45:
 							myAction = "CALL"
 					elif pot_size < 100:
-						if equity > 0.9:
-							# raise up to maximum
-							mybet = maxBet
+						if equity > 0.65:
+							mybet = pot_size + minBet
 							myAction = betType + ":" + str(mybet)
 						elif equity > 0.55:
 							myAction = "CALL"
+					elif pot_size > 100:
+						if equity > 0.85:
+							mybet = maxBet
+							myAction = betType + ":" + str(mybet)
+						
+						elif equity > 0.65:
+							myAction = "CALL"
+
+						elif equity <0.65:
+							myAction = "FOLD"
 					else:
-						if equity > 0.65:
+						if equity > 0.70:
 							myAction = "CALL"
 					
+					if canDiscard:
+					
+						c1 = myhand[:2]
+						c2 = myhand[2:4]
+						c3 = myhand[4:]
+						hand = c1+c2+c3
+						Action = "DISCARD:"
+				
+						equity_0 = pbots_calc.calc(c2+c3 + ":xxx", ''.join(parsed_packet['BOARDCARDS']), '', 1000).ev[0]
+						equity_1 = pbots_calc.calc(c1+c3 + ":xxx", ''.join(parsed_packet['BOARDCARDS']), '', 1000).ev[0]
+						equity_2 = pbots_calc.calc(c1+c2 + ":xxx", ''.join(parsed_packet['BOARDCARDS']), '', 1000).ev[0]
+
+						if equity_0 >= equity_1 and equity_0 >= equity_2:
+							hand = c2+c3
+							print ("DISCARD: " + c1)
+							Action += c1  
+							
+						elif equity_1 >= equity_0 and equity_1 >= equity_2:
+							hand = c1+c3
+							Action += c2
+							print ("DISCARD: " + c2)
+							
+						elif equity_2 >= equity_0 and equity_2 >= equity_1:
+							hand = c1+c2
+							Action += c3
+						 	print ("DISCARD: " + c3)
+						s.send(Action + "\n")
+
 					print "decided to: " + myAction
 					s.send(myAction + "\n")
+					
+
+					
+
 			elif word == "NEWHAND":
 				myhand = dataSplit[3] + dataSplit[4] + dataSplit[5]
 				print "pbot_ got new hand: " + myhand

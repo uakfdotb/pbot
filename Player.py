@@ -81,6 +81,8 @@ class Player(threading.Thread):
 						print "precomputed"
 					
 					pot_size = packet['POTSIZE']
+				if  packet['PACKETNAME'] == "GETACTION":
+
 					
 					# check how much the opponent raised by, if any
 					amountRaised = 0
@@ -90,7 +92,8 @@ class Player(threading.Thread):
 						
 						if actionSplit[0] == "BET" or actionSplit[0] == "RAISE":
 							amountRaised += int(actionSplit[1])
-					
+			
+			
 					# check min/max we can bet/raise by
 					betType = "BET"
 					minBet = 0
@@ -132,14 +135,14 @@ class Player(threading.Thread):
 					# if the amountRaised is low, then override check and call it
 					overrideCheck = False
 					
-					if pot_size > 0 and amountRaised / pot_size < 0.3:
+					if pot_size > 0 and amountRaised / pot_size < 0.2:
 						overrideCheck = True
 					
 					# based on pot size and equity, determine whether to bet or call or check/fold
 					myAction = "CHECK"
 
 					if random.random() < 0.1 and equity > 0.2:
-						myAction = betType + ":" + str(maxBet)
+						myAction = betType + ":" + " ALL IN: " + str(maxBet)
 					else:
 						if pot_size < 50:#
 							if section == 'pre':
@@ -153,7 +156,11 @@ class Player(threading.Thread):
 							
 							if equity > equities[0]:
 								# raise up to 5
-								mybet = min(maxBet,5)
+								if actionSplit[0] = "RAISE" 
+									mybet = min(maxBet, amountRaised + 5)
+								elif actionSplit[0] = "BET"
+									betType = "BET"
+									mybet = min(maxBet, 5)
 								myAction = betType + ":" + str(mybet)
 							elif equity > equities[1] or overrideCheck:
 								myAction = "CALL"
@@ -168,45 +175,50 @@ class Player(threading.Thread):
 								equities = [0.7, 0.45]
 							
 							if equity > equities[0]:
-								# raise more than pot
-								mybet = min(pot_size + minBet, maxBet)
+								#raise more than the pot
+								if actionSplit[0] = "RAISE" 
+									mybet = min(amountRaised + minBet, maxBet)
+								elif actionSplit[0] = "BET"
+									betType = "BET"
+									mybet = min(maxBet, 10)	
 								myAction = betType + ":" + str(mybet)
 							elif equity > equities[1] or overrideCheck:
 								# raise 5
-								mybet = min(5, maxBet)
+								mybet = min(amountRaised + 5, maxBet)
 								myAction = betType + ":" + str(mybet)
 						elif pot_size < 160:
 							if section == 'pre':
-								equities = [0.65, 0.45]
+								equities = [0.75, 0.65]
 							elif section == 'flop':
-								equities = [0.6, 0.39]
+								equities = [0.80, 0.70]
 							elif section == 'turn':
-								equities = [0.65, 0.45]
+								equities = [0.85, 0.75]
 							elif section == 'river':
-								equities = [0.7, 0.45]
+								equities = [0.90, 0.80]
 							
 							if equity > equities[0]:
 								mybet = maxBet
 								myAction = betType + ":" + str(mybet)
 							elif equity > equities[1] or overrideCheck:
 								# raise 20
-								mybet = min(20, maxBet)
+								mybet = min(amountRaised + 20, maxBet)
 								myAction = betType + ":" + str(mybet)
 						else:
 							if equity > 0.7 or overrideCheck:
 								# raise 50
-								mybet = min(50, maxBet)
+								mybet = min(amountRaised + 50, maxBet)
 								myAction = betType + ":" + str(mybet)
 
 					print "decided to: " + myAction
 					s.send(myAction + "\n")
 					
 
-					
-
+			
 			elif packet['PACKETNAME'] == "NEWHAND":
 				myhand = ''.join(packet['HAND'])
 				print "pbot_ got new hand: " + myhand
+				
+
 
 				
 

@@ -3,10 +3,10 @@ import socket
 import sys
 import threading
 import time
+import random
 from pbot import parse_packets
 from pbot import pbots_calc
 from pbot import precompute_calc
-
 
 class Player(threading.Thread):
 	input_socket = None
@@ -95,35 +95,37 @@ class Player(threading.Thread):
 					# based on pot size and equity, determine whether to bet or call or check/fold
 					myAction = "CHECK"
 
-					if pot_size < 50:#
-						if equity > 0.55:
-							# raise up to 5
-							mybet = min(maxBet,5)
-							myAction = betType + ":" + str(mybet)
-						elif equity > 0.45:
-							myAction = "CALL"
-					elif pot_size < 100:
-						if equity > 0.65:
-							mybet = pot_size + minBet
-							myAction = betType + ":" + str(mybet)
-						elif equity > 0.55:
-							myAction = "CALL"
-					elif pot_size > 100:
-						if equity > 0.85:
-							mybet = maxBet
-							myAction = betType + ":" + str(mybet)
-						
-						elif equity > 0.65:
-							myAction = "CALL"
-
-						elif equity <0.65:
-							myAction = "FOLD"
+					if random.random() < 0.1 and equity > 0.2:
+						myAction = betType + ":" + str(maxBet)
 					else:
-						if equity > 0.70:
-							myAction = "CALL"
+						if pot_size < 50:#
+							if equity > 0.55:
+								# raise up to 5
+								mybet = min(maxBet,5)
+								myAction = betType + ":" + str(mybet)
+							elif equity > 0.45:
+								myAction = "CALL"
+						elif pot_size < 100:
+							if equity > 0.65:
+								mybet = pot_size + minBet
+								myAction = betType + ":" + str(mybet)
+							elif equity > 0.55:
+								myAction = "CALL"
+						elif pot_size > 100:
+							if equity > 0.85:
+								mybet = maxBet
+								myAction = betType + ":" + str(mybet)
+						
+							elif equity > 0.65:
+								myAction = "CALL"
+
+							elif equity <0.65:
+								myAction = "FOLD"
+						else:
+							if equity > 0.70:
+								myAction = "CALL"
 					
 					if canDiscard:
-					
 						c1 = myhand[:2]
 						c2 = myhand[2:4]
 						c3 = myhand[4:]

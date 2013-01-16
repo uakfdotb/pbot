@@ -143,8 +143,29 @@ class Player(threading.Thread):
 
 					if random.random() < 0.1 and equity > 0.2:
 						myAction = betType + ":" + str(maxBet)
+
+					if haveBB and amountRaised = 0:
+						myAction = "CHECK"
+
+					if isButton and amountRaised = 0:
+						mybet = min(maxBet, 10)
+
+					elif isButton and amountRaised > 0:
+						if pot_size < 30 and equity > 0.65:
+							myAction = "CALL"
+						elif pot_size < 50 and equity > 0.70:
+							myAction = "CALL"
+						elif pot_size < 100 and equity > 0.75:
+							myAction = "CALL"
+						elif pot_size <150 and equity > 0.80:
+							myAction = "CALL"
+						elif pot_size < 200 and equity > 0.85:
+							myAction = "CALL"
+						elif pot_size >= maxBet and equity > 0.90:
+							myAction = "CALL"
+
 					else:
-						if pot_size < 50:#
+						if pot_size < 50:
 							if section == 'pre':
 								equities = [0.55, 0.35]
 							elif section == 'flop':
@@ -160,7 +181,6 @@ class Player(threading.Thread):
 									mybet = min(maxBet, amountRaised + 15)
 								elif betType == "BET":
 									mybet = min(maxBet, 15)
-								
 								myAction = betType + ":" + str(mybet)
 							elif equity > equities[1] or overrideCheck:
 								myAction = "CALL"
@@ -174,7 +194,7 @@ class Player(threading.Thread):
 							elif section == 'river':
 								equities = [0.75, 0.45]
 							
-							if equity > equities[0]:
+							if equity > equities[0] :
 								#raise more than the pot
 								if betType == "RAISE": 
 									mybet = min(amountRaised + 30, maxBet)
@@ -204,7 +224,7 @@ class Player(threading.Thread):
 								mybet = min(amountRaised + 20, maxBet)
 								myAction = betType + ":" + str(mybet)
 						else:
-							if equity > 0.7 or overrideCheck:
+							if (equity > 0.7 or overrideCheck) and isButton:
 								# raise 50
 								mybet = min(amountRaised + 50, maxBet)
 								myAction = betType + ":" + str(mybet)
@@ -213,13 +233,20 @@ class Player(threading.Thread):
 					s.send(myAction + "\n")
 					
 
-			
+				
 			elif packet['PACKETNAME'] == "NEWHAND":
 				myhand = ''.join(packet['HAND'])
 				print "pbot_ got new hand: " + myhand
-				
+				if packet['BUTTON']:
+					isButton = True
+				else:
+					isButton = False
 
-
+			elif packet['PACKETNAME'] == "NEWGAME":
+				if packet['BIGBLIND']:
+					haveBB  = True
+				else:
+					haveBB = False
 				
 
 			elif packet['PACKETNAME'] == "REQUESTKEYVALUES":

@@ -132,7 +132,7 @@ class Player(threading.Thread):
 					# if the amountRaised is low, then override check and call it
 					overrideCheck = False
 					
-					if pot_size > 0 and amountRaised / pot < 0.3:
+					if pot_size > 0 and amountRaised / pot_size < 0.3:
 						overrideCheck = True
 					
 					# based on pot size and equity, determine whether to bet or call or check/fold

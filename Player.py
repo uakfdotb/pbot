@@ -82,6 +82,18 @@ class Player(threading.Thread):
 						elif actionSplit[0] == "DISCARD":
 							canDiscard = True
 					
+					# detect pre-flop, flop, turn, river
+					section = ''
+					
+					if len(packet['BOARDCARDS']) == 0:
+						section = 'pre'
+					elif len(packet['BOARDCARDS']) == 3:
+						section = 'flop'
+					elif len(packet['BOARDCARDS']) == 4:
+						section = 'turn'
+					elif len(packet['BOARDCARDS']) == 5:
+						section = 'river'
+					
 					# print out parameters for this turn
 					print "================="
 					print "pbot_ my equity: " + str(equity)
@@ -99,30 +111,54 @@ class Player(threading.Thread):
 						myAction = betType + ":" + str(maxBet)
 					else:
 						if pot_size < 50:#
-							if equity > 0.55:
+							if section == 'pre':
+								equities = [0.55, 0.35]
+							elif section == 'flop':
+								equities = [0.55, 0.33]
+							elif section == 'turn':
+								equities = [0.55, 0.4]
+							elif section == 'river':
+								equities = [0.6, 0.45]
+							
+							if equity > equities[0]:
 								# raise up to 5
 								mybet = min(maxBet,5)
 								myAction = betType + ":" + str(mybet)
-							elif equity > 0.45:
+							elif equity > equities[1]:
 								myAction = "CALL"
 						elif pot_size < 100:
-							if equity > 0.65:
-								mybet = pot_size + minBet
+							if section == 'pre':
+								equities = [0.65, 0.45]
+							elif section == 'flop':
+								equities = [0.6, 0.37]
+							elif section == 'turn':
+								equities = [0.65, 0.43]
+							elif section == 'river':
+								equities = [0.7, 0.45]
+							
+							if equity > equities[0]:
+								# raise more than pot
+								mybet = min(pot_size + minBet, maxBet)
 								myAction = betType + ":" + str(mybet)
-							elif equity > 0.55:
+							elif equity > equities[1]:
 								myAction = "CALL"
-						elif pot_size > 100:
-							if equity > 0.85:
+						elif pot_size < 160:
+							if section == 'pre':
+								equities = [0.65, 0.45]
+							elif section == 'flop':
+								equities = [0.6, 0.39]
+							elif section == 'turn':
+								equities = [0.65, 0.45]
+							elif section == 'river':
+								equities = [0.7, 0.45]
+							
+							if equity > equities[0]:
 								mybet = maxBet
 								myAction = betType + ":" + str(mybet)
-						
-							elif equity > 0.65:
+							elif equity > equities[1]:
 								myAction = "CALL"
-
-							elif equity <0.65:
-								myAction = "FOLD"
 						else:
-							if equity > 0.70:
+							if equity > 0.7:
 								myAction = "CALL"
 					
 					if canDiscard:

@@ -156,10 +156,10 @@ class Player(threading.Thread):
 							
 							if equity > equities[0]:
 								# raise up to 5
-								if actionSplit[0] = "RAISE" 
+								if actionSplit[0] == "RAISE":
 									mybet = min(maxBet, amountRaised + 5)
-								elif actionSplit[0] = "BET"
-									betType = "BET"
+								elif actionSplit[0] == "BET":
+									betType == "BET"
 									mybet = min(maxBet, 5)
 								myAction = betType + ":" + str(mybet)
 							elif equity > equities[1] or overrideCheck:
@@ -176,10 +176,10 @@ class Player(threading.Thread):
 							
 							if equity > equities[0]:
 								#raise more than the pot
-								if actionSplit[0] = "RAISE" 
-									mybet = min(amountRaised + minBet, maxBet)
-								elif actionSplit[0] = "BET"
-									betType = "BET"
+								if actionSplit[0] == "RAISE": 
+									mybet = min(amountRaised + 10, maxBet)
+								elif actionSplit[0] == "BET":
+									betType == "BET"
 									mybet = min(maxBet, 10)	
 								myAction = betType + ":" + str(mybet)
 							elif equity > equities[1] or overrideCheck:

@@ -142,7 +142,7 @@ class Player(threading.Thread):
 					myAction = "CHECK"
 
 					if random.random() < 0.1 and equity > 0.2:
-						myAction = betType + ":" + " ALL IN: " + str(maxBet)
+						myAction = betType + ":" + str(maxBet)
 					else:
 						if pot_size < 50:#
 							if section == 'pre':
@@ -155,12 +155,12 @@ class Player(threading.Thread):
 								equities = [0.6, 0.45]
 							
 							if equity > equities[0]:
-								# raise up to 5
+								
 								if actionSplit[0] == "RAISE":
-									mybet = min(maxBet, amountRaised + 5)
+									mybet = min(maxBet, amountRaised + 15)
 								elif actionSplit[0] == "BET":
 									betType == "BET"
-									mybet = min(maxBet, 5)
+									mybet = min(maxBet, 15)
 								myAction = betType + ":" + str(mybet)
 							elif equity > equities[1] or overrideCheck:
 								myAction = "CALL"
@@ -168,19 +168,19 @@ class Player(threading.Thread):
 							if section == 'pre':
 								equities = [0.65, 0.45]
 							elif section == 'flop':
-								equities = [0.6, 0.37]
+								equities = [0.7, 0.37]
 							elif section == 'turn':
-								equities = [0.65, 0.43]
+								equities = [0.75, 0.43]
 							elif section == 'river':
-								equities = [0.7, 0.45]
+								equities = [0.75, 0.45]
 							
 							if equity > equities[0]:
 								#raise more than the pot
 								if actionSplit[0] == "RAISE": 
-									mybet = min(amountRaised + 10, maxBet)
+									mybet = min(amountRaised + 30, maxBet)
 								elif actionSplit[0] == "BET":
 									betType == "BET"
-									mybet = min(maxBet, 10)	
+									mybet = min(maxBet, 30)	
 								myAction = betType + ":" + str(mybet)
 							elif equity > equities[1] or overrideCheck:
 								# raise 5

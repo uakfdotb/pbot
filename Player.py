@@ -41,10 +41,38 @@ class Player(threading.Thread):
 			# When sending responses, terminate each response with a newline
 			# character (\n) or your bot will hang!
 			if packet['PACKETNAME'] == "GETACTION":
-				if len(packet['LEGALACTIONS']) == 0:
+				if len(packet['LEGALACTIONS']) == 1:
 					# since we only have one legal action, we take it no matter what
-					s.send(packet['LEGALACTIONS'][0] + "\n")
-					print "pbot_ took only legal action: " + packet['LEGALACTIONS'][0]
+					
+					if packet['LEGALACTIONS'][0] == "DISCARD":
+						c1 = myhand[:2]
+						c2 = myhand[2:4]
+						c3 = myhand[4:]
+						hand = c1+c2+c3
+						Action = "DISCARD:"
+				
+						equity_0 = pbots_calc.calc(c2+c3 + ":xxx", ''.join(packet['BOARDCARDS']), '', 1000).ev[0]
+						equity_1 = pbots_calc.calc(c1+c3 + ":xxx", ''.join(packet['BOARDCARDS']), '', 1000).ev[0]
+						equity_2 = pbots_calc.calc(c1+c2 + ":xxx", ''.join(packet['BOARDCARDS']), '', 1000).ev[0]
+
+						if equity_0 >= equity_1 and equity_0 >= equity_2:
+							hand = c2+c3
+							print ("DISCARD: " + c1)
+							Action += c1  
+							
+						elif equity_1 >= equity_0 and equity_1 >= equity_2:
+							hand = c1+c3
+							Action += c2
+							print ("DISCARD: " + c2)
+							
+						elif equity_2 >= equity_0 and equity_2 >= equity_1:
+							hand = c1+c2
+							Action += c3
+						 	print ("DISCARD: " + c3)
+						s.send(Action + "\n")
+					else:
+						s.send(packet['LEGALACTIONS'][0] + "\n")
+						print "pbot_ took only legal action: " + packet['LEGALACTIONS'][0]
 				else:
 					if packet['BOARDCARDS']:
 						equity = pbots_calc.calc(myhand + ":xxx", ''.join(packet['BOARDCARDS']), '', 1000).ev[0]
@@ -56,7 +84,6 @@ class Player(threading.Thread):
 					
 					# check how much the opponent raised by, if any
 					amountRaised = 0
-					canDiscard = False
 					
 					for action in packet['LASTACTIONS'][1:]:
 						actionSplit = action.split(":")
@@ -79,8 +106,6 @@ class Player(threading.Thread):
 
 							minBet = int(actionSplit[1])
 							maxBet = int(actionSplit[2])
-						elif actionSplit[0] == "DISCARD":
-							canDiscard = True
 					
 					# detect pre-flop, flop, turn, river
 					section = ''
@@ -160,33 +185,6 @@ class Player(threading.Thread):
 						else:
 							if equity > 0.7:
 								myAction = "CALL"
-					
-					if canDiscard:
-						c1 = myhand[:2]
-						c2 = myhand[2:4]
-						c3 = myhand[4:]
-						hand = c1+c2+c3
-						Action = "DISCARD:"
-				
-						equity_0 = pbots_calc.calc(c2+c3 + ":xxx", ''.join(packet['BOARDCARDS']), '', 1000).ev[0]
-						equity_1 = pbots_calc.calc(c1+c3 + ":xxx", ''.join(packet['BOARDCARDS']), '', 1000).ev[0]
-						equity_2 = pbots_calc.calc(c1+c2 + ":xxx", ''.join(packet['BOARDCARDS']), '', 1000).ev[0]
-
-						if equity_0 >= equity_1 and equity_0 >= equity_2:
-							hand = c2+c3
-							print ("DISCARD: " + c1)
-							Action += c1  
-							
-						elif equity_1 >= equity_0 and equity_1 >= equity_2:
-							hand = c1+c3
-							Action += c2
-							print ("DISCARD: " + c2)
-							
-						elif equity_2 >= equity_0 and equity_2 >= equity_1:
-							hand = c1+c2
-							Action += c3
-						 	print ("DISCARD: " + c3)
-						s.send(Action + "\n")
 
 					print "decided to: " + myAction
 					s.send(myAction + "\n")

@@ -129,6 +129,12 @@ class Player(threading.Thread):
 					print "pbot_ maxbet: " + str(maxBet)
 					print "================="
 					
+					# if the amountRaised is low, then override check and call it
+					overrideCheck = False
+					
+					if pot_size > 0 and amountRaised / pot < 0.3:
+						overrideCheck = True
+					
 					# based on pot size and equity, determine whether to bet or call or check/fold
 					myAction = "CHECK"
 
@@ -149,7 +155,7 @@ class Player(threading.Thread):
 								# raise up to 5
 								mybet = min(maxBet,5)
 								myAction = betType + ":" + str(mybet)
-							elif equity > equities[1]:
+							elif equity > equities[1] or overrideCheck:
 								myAction = "CALL"
 						elif pot_size < 100:
 							if section == 'pre':
@@ -165,8 +171,10 @@ class Player(threading.Thread):
 								# raise more than pot
 								mybet = min(pot_size + minBet, maxBet)
 								myAction = betType + ":" + str(mybet)
-							elif equity > equities[1]:
-								myAction = "CALL"
+							elif equity > equities[1] or overrideCheck:
+								# raise 5
+								mybet = min(5, maxBet)
+								myAction = betType + ":" + str(mybet)
 						elif pot_size < 160:
 							if section == 'pre':
 								equities = [0.65, 0.45]
@@ -180,11 +188,15 @@ class Player(threading.Thread):
 							if equity > equities[0]:
 								mybet = maxBet
 								myAction = betType + ":" + str(mybet)
-							elif equity > equities[1]:
-								myAction = "CALL"
+							elif equity > equities[1] or overrideCheck:
+								# raise 20
+								mybet = min(20, maxBet)
+								myAction = betType + ":" + str(mybet)
 						else:
-							if equity > 0.7:
-								myAction = "CALL"
+							if equity > 0.7 or overrideCheck:
+								# raise 50
+								mybet = min(50, maxBet)
+								myAction = betType + ":" + str(mybet)
 
 					print "decided to: " + myAction
 					s.send(myAction + "\n")

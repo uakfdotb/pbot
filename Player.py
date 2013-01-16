@@ -3,7 +3,7 @@ import socket
 import sys
 import threading
 import time
-from pbot import parse_getaction
+from pbot import parse_packets
 from pbot import pbots_calc
 from pbot import precompute_calc
 
@@ -31,10 +31,8 @@ class Player(threading.Thread):
 				break
 
 			# Here is where you should implement code to parse the packets from
-			# the engine and act on it. We are just printing it instead.
-			#print data
-			
-			dataSplit = data.split()
+			# the engine and act on it.
+			packet = parse_packets.master_parse(data)
 
 			# When appropriate, reply to the engine with a legal action.
 			# The engine will ignore all spurious responses.
@@ -42,28 +40,25 @@ class Player(threading.Thread):
 			# illegal action.
 			# When sending responses, terminate each response with a newline
 			# character (\n) or your bot will hang!
-			word = dataSplit[0]
-			if word == "GETACTION":
-				parsed_packet = parse_getaction.parse_list(dataSplit)
-
-				if len(parsed_packet['LEGALACTIONS']) == 0:
+			if packet['PACKETNAME'] == "GETACTION":
+				if len(packet['LEGALACTIONS']) == 0:
 					# since we only have one legal action, we take it no matter what
-					s.send(parsed_packet['LEGALACTIONS'][0] + "\n")
-					print "pbot_ took only legal action: " + parsed_packet['LEGALACTIONS'][0]
+					s.send(packet['LEGALACTIONS'][0] + "\n")
+					print "pbot_ took only legal action: " + packet['LEGALACTIONS'][0]
 				else:
-					if parsed_packet['BOARDCARDS']:
-						equity = pbots_calc.calc(myhand + ":xxx", ''.join(parsed_packet['BOARDCARDS']), '', 1000).ev[0]
+					if packet['BOARDCARDS']:
+						equity = pbots_calc.calc(myhand + ":xxx", ''.join(packet['BOARDCARDS']), '', 1000).ev[0]
 					else:
 						equity = precompute_calc.calc(myhand)
 						print "precomputed"
 					
-					pot_size = parsed_packet['POTSIZE']
+					pot_size = packet['POTSIZE']
 					
 					# check how much the opponent raised by, if any
 					amountRaised = 0
 					canDiscard = False
 					
-					for action in parsed_packet['LASTACTIONS'][1:]:
+					for action in packet['LASTACTIONS'][1:]:
 						actionSplit = action.split(":")
 						
 						if actionSplit[0] == "BET" or actionSplit[0] == "RAISE":
@@ -74,7 +69,7 @@ class Player(threading.Thread):
 					minBet = 0
 					maxBet = 0
 					
-					for action in parsed_packet['LEGALACTIONS']:
+					for action in packet['LEGALACTIONS']:
 						actionSplit = action.split(":")
 						
 						if actionSplit[0] == "BET" or actionSplit[0] == "RAISE":
@@ -135,9 +130,9 @@ class Player(threading.Thread):
 						hand = c1+c2+c3
 						Action = "DISCARD:"
 				
-						equity_0 = pbots_calc.calc(c2+c3 + ":xxx", ''.join(parsed_packet['BOARDCARDS']), '', 1000).ev[0]
-						equity_1 = pbots_calc.calc(c1+c3 + ":xxx", ''.join(parsed_packet['BOARDCARDS']), '', 1000).ev[0]
-						equity_2 = pbots_calc.calc(c1+c2 + ":xxx", ''.join(parsed_packet['BOARDCARDS']), '', 1000).ev[0]
+						equity_0 = pbots_calc.calc(c2+c3 + ":xxx", ''.join(packet['BOARDCARDS']), '', 1000).ev[0]
+						equity_1 = pbots_calc.calc(c1+c3 + ":xxx", ''.join(packet['BOARDCARDS']), '', 1000).ev[0]
+						equity_2 = pbots_calc.calc(c1+c2 + ":xxx", ''.join(packet['BOARDCARDS']), '', 1000).ev[0]
 
 						if equity_0 >= equity_1 and equity_0 >= equity_2:
 							hand = c2+c3
@@ -161,13 +156,13 @@ class Player(threading.Thread):
 
 					
 
-			elif word == "NEWHAND":
-				myhand = dataSplit[3] + dataSplit[4] + dataSplit[5]
+			elif packet['PACKETNAME'] == "NEWHAND":
+				myhand = ''.join(packet['HAND'])
 				print "pbot_ got new hand: " + myhand
 
 				
 
-			elif word == "REQUESTKEYVALUES":
+			elif packet['PACKETNAME'] == "REQUESTKEYVALUES":
 				# At the end, the engine will allow your bot save key/value pairs.
 				# Send FINISH to indicate you're done.
 				s.send("FINISH\n")

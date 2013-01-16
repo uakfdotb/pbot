@@ -106,4 +106,6 @@ def master_parse(data):
     elif word=='HANDOVER':
         return parse_ho(data)
     else:
-        print 'Not a valid packet.'
+        comp_dict = {}
+        comp_dict['PACKETNAME'] = data.split()[0]
+        return comp_dict

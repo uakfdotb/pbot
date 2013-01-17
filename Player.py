@@ -144,10 +144,10 @@ class Player(threading.Thread):
 					if random.random() < 0.1 and equity > 0.2:
 						myAction = betType + ":" + str(maxBet)
 
-					if haveBB and amountRaised = 0:
+					if haveBB and amountRaised == 0:
 						myAction = "CHECK"
 
-					if isButton and amountRaised = 0:
+					if isButton and amountRaised == 0:
 						mybet = min(maxBet, 10)
 
 					elif isButton and amountRaised > 0:

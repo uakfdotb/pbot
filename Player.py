@@ -151,17 +151,17 @@ class Player(threading.Thread):
 						mybet = min(maxBet, 10)
 
 					elif isButton and amountRaised > 0:
-						if pot_size < 30 and equity > 0.65:
+						if pot_size < 30 and equity > 0.4:
 							myAction = "CALL"
-						elif pot_size < 50 and equity > 0.70:
+						elif pot_size < 50 and equity > 0.55:
 							myAction = "CALL"
-						elif pot_size < 100 and equity > 0.75:
+						elif pot_size < 100 and equity > 0.6:
 							myAction = "CALL"
-						elif pot_size <150 and equity > 0.80:
+						elif pot_size <150 and equity > 0.7:
 							myAction = "CALL"
-						elif pot_size < 200 and equity > 0.85:
+						elif pot_size < 200 and equity > 0.75:
 							myAction = "CALL"
-						elif pot_size >= maxBet and equity > 0.90:
+						elif pot_size >= maxBet and equity > 0.75:
 							myAction = "CALL"
 
 					else:
@@ -171,9 +171,9 @@ class Player(threading.Thread):
 							elif section == 'flop':
 								equities = [0.55, 0.33]
 							elif section == 'turn':
-								equities = [0.55, 0.4]
+								equities = [0.55, 0.33]
 							elif section == 'river':
-								equities = [0.6, 0.45]
+								equities = [0.6, 0.40]
 							
 							if equity > equities[0]:
 								
@@ -186,13 +186,13 @@ class Player(threading.Thread):
 								myAction = "CALL"
 						elif pot_size < 100:
 							if section == 'pre':
-								equities = [0.65, 0.45]
+								equities = [0.55, 0.20]
 							elif section == 'flop':
-								equities = [0.7, 0.37]
+								equities = [0.65, 0.40]
 							elif section == 'turn':
-								equities = [0.75, 0.43]
-							elif section == 'river':
 								equities = [0.75, 0.45]
+							elif section == 'river':
+								equities = [0.75, 0.50]
 							
 							if equity > equities[0] :
 								#raise more than the pot
@@ -208,13 +208,13 @@ class Player(threading.Thread):
 								myAction = betType + ":" + str(mybet)
 						elif pot_size < 160:
 							if section == 'pre':
-								equities = [0.75, 0.65]
+								equities = [0.65, 0.55]
 							elif section == 'flop':
-								equities = [0.80, 0.70]
+								equities = [0.70, 0.60]
 							elif section == 'turn':
-								equities = [0.85, 0.75]
+								equities = [0.75, 0.65]
 							elif section == 'river':
-								equities = [0.90, 0.80]
+								equities = [0.80, 0.70]
 							
 							if equity > equities[0]:
 								mybet = maxBet
@@ -224,7 +224,7 @@ class Player(threading.Thread):
 								mybet = min(amountRaised + 20, maxBet)
 								myAction = betType + ":" + str(mybet)
 						else:
-							if (equity > 0.7 or overrideCheck) and isButton:
+							if (equity > 0.65 or overrideCheck):
 								# raise 50
 								mybet = min(amountRaised + 50, maxBet)
 								myAction = betType + ":" + str(mybet)

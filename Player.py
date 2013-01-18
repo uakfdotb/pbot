@@ -81,8 +81,6 @@ class Player(threading.Thread):
 						print "precomputed"
 					
 					pot_size = packet['POTSIZE']
-				if  packet['PACKETNAME'] == "GETACTION":
-
 					
 					# check how much the opponent raised by, if any
 					amountRaised = 0
@@ -231,9 +229,7 @@ class Player(threading.Thread):
 
 					print "decided to: " + myAction
 					s.send(myAction + "\n")
-					
-
-				
+			
 			elif packet['PACKETNAME'] == "NEWHAND":
 				myhand = ''.join(packet['HAND'])
 				print "pbot_ got new hand: " + myhand

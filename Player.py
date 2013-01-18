@@ -32,6 +32,7 @@ class Player(threading.Thread):
 
 			# Here is where you should implement code to parse the packets from
 			# the engine and act on it.
+			print data
 			packet = parse_packets.master_parse(data)
 
 			# When appropriate, reply to the engine with a legal action.
@@ -142,11 +143,9 @@ class Player(threading.Thread):
 					if random.random() < 0.1 and equity > 0.2:
 						myAction = betType + ":" + str(maxBet)
 
-					if haveBB and amountRaised == 0:
-						myAction = "CHECK"
-
-					if isButton and amountRaised == 0:
+					elif isButton and amountRaised == 0:
 						mybet = min(maxBet, 10)
+						myAction = betType + ":" + str(mybet)
 
 					elif isButton and amountRaised > 0:
 						if pot_size < 30 and equity > 0.4:

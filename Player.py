@@ -134,15 +134,34 @@ class Player(threading.Thread):
 					# if the amountRaised is low, then override check and call it
 					overrideCheck = False
 					
-					if pot_size > 0 and amountRaised / pot_size < 0.2:
+					if pot_size > 0 and amountRaised / pot_size < 0.3:
 						overrideCheck = True
 					
 					# based on pot size and equity, determine whether to bet or call or check/fold
 					myAction = "CHECK"
 
 					if random.random() < 0.1 and equity > 0.2:
-						myAction = betType + ":" + str(maxBet)
+						myAction = betType + ":" + str(maxBet)	
 
+					elif haveSB and amountRaised == 0 and equity <0.33:
+						myAction = "CHECK"
+
+					elif haveSB and amountRaised == 0 and equity > 0.33:
+						mybet = min(maxBet, 10)
+						myAction = betType + ":" + str(mybet)
+
+					elif haveSB and amountRaised == 0 and equity > 0.55:
+						mybet = min(maxBet, 20)
+						myAction = betType + ":" + str(mybet)
+
+					elif haveSB and amountRaised == 0 and equity > 0.65:
+						mybet = min(maxBet, 40)
+						myAction = betType + ":" + str(mybet)
+
+					elif haveSB and amountRaised == 0 and equity > 0.75:
+						mybet = min(maxBet, 60)
+						myAction = betType + ":" + str(mybet)
+ 
 					elif isButton and amountRaised == 0:
 						mybet = min(maxBet, 10)
 						myAction = betType + ":" + str(mybet)
@@ -239,9 +258,9 @@ class Player(threading.Thread):
 
 			elif packet['PACKETNAME'] == "NEWGAME":
 				if packet['BIGBLIND']:
-					haveBB  = True
+					haveSB  = False
 				else:
-					haveBB = False
+					haveSB = True
 				
 
 			elif packet['PACKETNAME'] == "REQUESTKEYVALUES":

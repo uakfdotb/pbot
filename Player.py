@@ -141,44 +141,27 @@ class Player(threading.Thread):
 					myAction = "CHECK"
 
 					if random.random() < 0.1 and equity > 0.2:
-						myAction = betType + ":" + str(maxBet)	
-
-					elif haveSB and amountRaised == 0 and equity <0.33:
-						myAction = "CHECK"
-
-					elif haveSB and amountRaised == 0 and equity > 0.33:
-						mybet = min(maxBet, 10)
-						myAction = betType + ":" + str(mybet)
-
-					elif haveSB and amountRaised == 0 and equity > 0.55:
-						mybet = min(maxBet, 20)
-						myAction = betType + ":" + str(mybet)
-
-					elif haveSB and amountRaised == 0 and equity > 0.65:
-						mybet = min(maxBet, 40)
-						myAction = betType + ":" + str(mybet)
-
-					elif haveSB and amountRaised == 0 and equity > 0.75:
-						mybet = min(maxBet, 60)
-						myAction = betType + ":" + str(mybet)
+						myAction = betType + ":" + str(maxBet)
+					
+					elif haveSB and amountRaised == 0:
+						if equity > 0.75:
+							mybet = min(maxBet, 60)
+							myAction = betType + ":" + str(mybet)
+						elif equity > 0.65:
+							mybet = min(maxBet, 40)
+							myAction = betType + ":" + str(mybet)
+						elif equity > 0.55:
+							mybet = min(maxBet, 20)
+							myAction = betType + ":" + str(mybet)
+						elif equity > 0.33:
+							mybet = min(maxBet, 10)
+							myAction = betType + ":" + str(mybet)
+						elif equity <0.33:
+							myAction = "CHECK"
  
 					elif isButton and amountRaised == 0:
 						mybet = min(maxBet, 10)
 						myAction = betType + ":" + str(mybet)
-
-					elif isButton and amountRaised > 0:
-						if pot_size < 30 and equity > 0.4:
-							myAction = "CALL"
-						elif pot_size < 50 and equity > 0.55:
-							myAction = "CALL"
-						elif pot_size < 100 and equity > 0.6:
-							myAction = "CALL"
-						elif pot_size <150 and equity > 0.7:
-							myAction = "CALL"
-						elif pot_size < 200 and equity > 0.75:
-							myAction = "CALL"
-						elif pot_size >= maxBet and equity > 0.75:
-							myAction = "CALL"
 
 					else:
 						if pot_size < 50:

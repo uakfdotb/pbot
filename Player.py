@@ -165,7 +165,7 @@ class Player(threading.Thread):
  
 					elif isButton and amountRaised == 0:
 						myAction = getBet(betType, minBet, maxBet, 10, amountRaised)
-
+					
 					else:
 						if pot_size < 50:
 							if section == 'pre':
@@ -211,9 +211,9 @@ class Player(threading.Thread):
 								myAction = getBet(betType, minBet, maxBet, maxBet, amountRaised)
 							elif equity > equities[1] or overrideCheck:
 								# raise 20
-								myAction = getBet(betType, minBet, maxBet, 20, amountRaised)
+								myAction = getBet(betType, minBet, maxBet, 30, amountRaised)
 						else:
-							if (equity > 0.65 or overrideCheck):
+							if (equity > 0.75 or overrideCheck):
 								# raise 50
 								myAction = getBet(betType, minBet, maxBet, 50, amountRaised)
 

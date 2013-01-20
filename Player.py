@@ -8,6 +8,12 @@ from pbot import parse_packets
 from pbot import pbots_calc
 from pbot import precompute_calc
 
+def getBet(betType, minBet, maxBet, myBet, amountRaised):
+	if betType == "RAISE":
+		myBet += amountRaised
+	
+	return betType + ":" + str(max(minBet, min(maxBet, myBet)))
+
 class Player(threading.Thread):
 	input_socket = None
 	
@@ -104,8 +110,7 @@ class Player(threading.Thread):
 						if actionSplit[0] == "BET" or actionSplit[0] == "RAISE":
 							if actionSplit[0] == "RAISE":
 								betType = "RAISE"
-								
-
+							
 							minBet = int(actionSplit[1])
 							maxBet = int(actionSplit[2])
 					
@@ -141,27 +146,20 @@ class Player(threading.Thread):
 					myAction = "CHECK"
 
 					if random.random() < 0.1 and equity > 0.2:
-						myAction = betType + ":" + str(maxBet)
+						myAction = getBet(betType, minBet, maxBet, maxBet, amountRaised)
 					
 					elif haveSB and amountRaised == 0:
 						if equity > 0.75:
-							mybet = min(maxBet, 60)
-							myAction = betType + ":" + str(mybet)
+							myAction = getBet(betType, minBet, maxBet, 60, amountRaised)
 						elif equity > 0.65:
-							mybet = min(maxBet, 40)
-							myAction = betType + ":" + str(mybet)
+							myAction = getBet(betType, minBet, maxBet, 40, amountRaised)
 						elif equity > 0.55:
-							mybet = min(maxBet, 20)
-							myAction = betType + ":" + str(mybet)
+							myAction = getBet(betType, minBet, maxBet, 20, amountRaised)
 						elif equity > 0.33:
-							mybet = min(maxBet, 10)
-							myAction = betType + ":" + str(mybet)
-						elif equity <0.33:
-							myAction = "CHECK"
+							myAction = getBet(betType, minBet, maxBet, 10, amountRaised)
  
 					elif isButton and amountRaised == 0:
-						mybet = min(maxBet, 10)
-						myAction = betType + ":" + str(mybet)
+						myAction = getBet(betType, minBet, maxBet, 10, amountRaised)
 
 					else:
 						if pot_size < 50:
@@ -175,14 +173,9 @@ class Player(threading.Thread):
 								equities = [0.6, 0.40]
 							
 							if equity > equities[0]:
-								if betType == "RAISE":
-									mybet = min(maxBet, amountRaised + 15)
-								elif betType == "BET":
-									mybet = min(maxBet, 15)
-								myAction = betType + ":" + str(mybet)
+								myAction = getBet(betType, minBet, maxBet, 15, amountRaised)
 							elif equity > equities[1] or overrideCheck:
-								mybet = min(maxBet, 3)
-								myAction = betType + ":" + str(mybet)
+								myAction = getBet(betType, minBet, maxBet, 3, amountRaised)
 						elif pot_size < 100:
 							if section == 'pre':
 								equities = [0.55, 0.20]
@@ -194,17 +187,11 @@ class Player(threading.Thread):
 								equities = [0.75, 0.50]
 							
 							if equity > equities[0] :
-								#raise more than the pot
-								if betType == "RAISE": 
-									mybet = min(amountRaised + 30, maxBet)
-								elif betType == "BET":
-									mybet = min(maxBet, 30)	
-								
-								myAction = betType + ":" + str(mybet)
+								# raise more than the pot
+								myAction = getBet(betType, minBet, maxBet, 60, amountRaised)
 							elif equity > equities[1] or overrideCheck:
 								# raise 5
-								mybet = min(amountRaised + 5, maxBet)
-								myAction = betType + ":" + str(mybet)
+								myAction = getBet(betType, minBet, maxBet, 5, amountRaised)
 						elif pot_size < 160:
 							if section == 'pre':
 								equities = [0.65, 0.55]
@@ -216,17 +203,14 @@ class Player(threading.Thread):
 								equities = [0.80, 0.70]
 							
 							if equity > equities[0]:
-								mybet = maxBet
-								myAction = betType + ":" + str(mybet)
+								myAction = getBet(betType, minBet, maxBet, maxBet, amountRaised)
 							elif equity > equities[1] or overrideCheck:
 								# raise 20
-								mybet = min(amountRaised + 20, maxBet)
-								myAction = betType + ":" + str(mybet)
+								myAction = getBet(betType, minBet, maxBet, 20, amountRaised)
 						else:
 							if (equity > 0.65 or overrideCheck):
 								# raise 50
-								mybet = min(amountRaised + 50, maxBet)
-								myAction = betType + ":" + str(mybet)
+								myAction = getBet(betType, minBet, maxBet, 50, amountRaised)
 
 					print "decided to: " + myAction
 					s.send(myAction + "\n")

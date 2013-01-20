@@ -12,7 +12,12 @@ def getBet(betType, minBet, maxBet, myBet, amountRaised):
 	if betType == "RAISE":
 		myBet += amountRaised
 	
-	return betType + ":" + str(max(minBet, min(maxBet, myBet)))
+	actualBet = max(minBet, min(maxBet, myBet))
+	
+	if actualBet > 0:
+		return betType + ":" + str(actualBet)
+	else:
+		return "CALL"
 
 class Player(threading.Thread):
 	input_socket = None

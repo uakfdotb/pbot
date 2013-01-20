@@ -175,14 +175,14 @@ class Player(threading.Thread):
 								equities = [0.6, 0.40]
 							
 							if equity > equities[0]:
-								
 								if betType == "RAISE":
 									mybet = min(maxBet, amountRaised + 15)
 								elif betType == "BET":
 									mybet = min(maxBet, 15)
 								myAction = betType + ":" + str(mybet)
 							elif equity > equities[1] or overrideCheck:
-								myAction = "CALL"
+								mybet = min(maxBet, 3)
+								myAction = betType + ":" + str(mybet)
 						elif pot_size < 100:
 							if section == 'pre':
 								equities = [0.55, 0.20]

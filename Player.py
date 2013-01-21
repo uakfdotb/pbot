@@ -32,6 +32,7 @@ class Player(threading.Thread):
 		f_in = self.input_socket.makefile()
 		
 		myhand = ''
+		discarded = ''
 		
 		while True:
 			# Block until the engine sends us a packet.
@@ -60,25 +61,27 @@ class Player(threading.Thread):
 						c1 = myhand[:2]
 						c2 = myhand[2:4]
 						c3 = myhand[4:]
-						hand = c1+c2+c3
 						Action = "DISCARD:"
-				
-						equity_0 = pbots_calc.calc(c2+c3 + ":xxx", ''.join(packet['BOARDCARDS']), '', 1000).ev[0]
-						equity_1 = pbots_calc.calc(c1+c3 + ":xxx", ''.join(packet['BOARDCARDS']), '', 1000).ev[0]
-						equity_2 = pbots_calc.calc(c1+c2 + ":xxx", ''.join(packet['BOARDCARDS']), '', 1000).ev[0]
+						
+						equity_0 = pbots_calc.calc(c2+c3 + ":xx", ''.join(packet['BOARDCARDS']), c1, 2000).ev[0]
+						equity_1 = pbots_calc.calc(c1+c3 + ":xx", ''.join(packet['BOARDCARDS']), c2, 2000).ev[0]
+						equity_2 = pbots_calc.calc(c1+c2 + ":xx", ''.join(packet['BOARDCARDS']), c3, 2000).ev[0]
 
 						if equity_0 >= equity_1 and equity_0 >= equity_2:
-							hand = c2+c3
+							myhand = c2+c3
+							discarded = c1
 							print ("DISCARD: " + c1)
 							Action += c1  
 							
 						elif equity_1 >= equity_0 and equity_1 >= equity_2:
-							hand = c1+c3
+							myhand = c1+c3
+							discarded = c2
 							Action += c2
 							print ("DISCARD: " + c2)
 							
 						elif equity_2 >= equity_0 and equity_2 >= equity_1:
-							hand = c1+c2
+							myhand = c1+c2
+							discarded = c3
 							Action += c3
 						 	print ("DISCARD: " + c3)
 						s.send(Action + "\n")
@@ -87,7 +90,7 @@ class Player(threading.Thread):
 						print "pbot_ took only legal action: " + packet['LEGALACTIONS'][0]
 				else:
 					if packet['BOARDCARDS']:
-						equity = pbots_calc.calc(myhand + ":xxx", ''.join(packet['BOARDCARDS']), '', 1000).ev[0]
+						equity = pbots_calc.calc(myhand + ":xx", ''.join(packet['BOARDCARDS']), discarded, 2000).ev[0]
 					else:
 						equity = precompute_calc.calc(myhand)
 						print "precomputed"
@@ -222,6 +225,8 @@ class Player(threading.Thread):
 			
 			elif packet['PACKETNAME'] == "NEWHAND":
 				myhand = ''.join(packet['HAND'])
+				discarded = ''
+				
 				print "pbot_ got new hand: " + myhand
 				if packet['BUTTON']:
 					isButton = True

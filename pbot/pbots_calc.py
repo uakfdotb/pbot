@@ -35,8 +35,6 @@ else:
 
 if not pbots_calc:
 	import os
-	print os.listdir('./')
-	print os.listdir('../')
 	pbots_calc = os.path.abspath('./lib/libpbots_calc.so')
 
 class _Results(ctypes.Structure):

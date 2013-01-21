@@ -33,6 +33,9 @@ if sys.platform.startswith('win'):
 else:
     pbots_calc = ctypes.util.find_library("pbots_calc")
 
+if not pbots_calc:
+	import os
+	pbots_calc = os.path.abspath('../lib/libpbots_calc.so')
 
 class _Results(ctypes.Structure):
     _fields_ = [("ev", ctypes.POINTER(ctypes.c_double)),

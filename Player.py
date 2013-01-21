@@ -8,6 +8,12 @@ from pbot import parse_packets
 from pbot import pbots_calc
 from pbot import precompute_calc
 
+DEBUG = True
+
+def debugPrint(string):
+	if DEBUG:
+		print string
+
 def getBet(betType, minBet, maxBet, myBet, amountRaised):
 	if betType == "RAISE":
 		myBet += amountRaised
@@ -39,12 +45,12 @@ class Player(threading.Thread):
 			data = f_in.readline().strip()
 			# If data is None, connection has closed.
 			if not data:
-				print "Gameover, engine disconnected."
+				debugPrint("Gameover, engine disconnected.")
 				break
 
 			# Here is where you should implement code to parse the packets from
 			# the engine and act on it.
-			print data
+			debugPrint(data)
 			packet = parse_packets.master_parse(data)
 
 			# When appropriate, reply to the engine with a legal action.
@@ -70,30 +76,30 @@ class Player(threading.Thread):
 						if equity_0 >= equity_1 and equity_0 >= equity_2:
 							myhand = c2+c3
 							discarded = c1
-							print ("DISCARD: " + c1)
+							debugPrint("DISCARD: " + c1)
 							Action += c1  
 							
 						elif equity_1 >= equity_0 and equity_1 >= equity_2:
 							myhand = c1+c3
 							discarded = c2
 							Action += c2
-							print ("DISCARD: " + c2)
+							debugPrint("DISCARD: " + c2)
 							
 						elif equity_2 >= equity_0 and equity_2 >= equity_1:
 							myhand = c1+c2
 							discarded = c3
 							Action += c3
-						 	print ("DISCARD: " + c3)
+						 	debugPrint("DISCARD: " + c3)
 						s.send(Action + "\n")
 					else:
 						s.send(packet['LEGALACTIONS'][0] + "\n")
-						print "pbot_ took only legal action: " + packet['LEGALACTIONS'][0]
+						debugPrint("pbot_ took only legal action: " + packet['LEGALACTIONS'][0])
 				else:
 					if packet['BOARDCARDS']:
 						equity = pbots_calc.calc(myhand + ":xx", ''.join(packet['BOARDCARDS']), discarded, 2000).ev[0]
 					else:
 						equity = precompute_calc.calc(myhand)
-						print "precomputed"
+						debugPrint("precomputed")
 					
 					pot_size = packet['POTSIZE']
 					
@@ -135,14 +141,14 @@ class Player(threading.Thread):
 						section = 'river'
 					
 					# print out parameters for this turn
-					print "================="
-					print "pbot_ my equity: " + str(equity)
-					print "pbot_ opponent raised: " + str(amountRaised)
-					print "pbot_ pot: " + str(pot_size)
-					print "pbot_ bettype: " + betType
-					print "pbot_ minbet: " + str(minBet)
-					print "pbot_ maxbet: " + str(maxBet)
-					print "================="
+					debugPrint("=================")
+					debugPrint("pbot_ my equity: " + str(equity))
+					debugPrint("pbot_ opponent raised: " + str(amountRaised))
+					debugPrint("pbot_ pot: " + str(pot_size))
+					debugPrint("pbot_ bettype: " + betType)
+					debugPrint("pbot_ minbet: " + str(minBet))
+					debugPrint("pbot_ maxbet: " + str(maxBet))
+					debugPrint("=================")
 					
 					# if the amountRaised is low, then override check and call it
 					overrideCheck = False
@@ -220,14 +226,14 @@ class Player(threading.Thread):
 								# raise 50
 								myAction = getBet(betType, minBet, maxBet, 50, amountRaised)
 
-					print "decided to: " + myAction
+					debugPrint("decided to: " + myAction)
 					s.send(myAction + "\n")
 			
 			elif packet['PACKETNAME'] == "NEWHAND":
 				myhand = ''.join(packet['HAND'])
 				discarded = ''
 				
-				print "pbot_ got new hand: " + myhand
+				debugPrint("pbot_ got new hand: " + myhand)
 				if packet['BUTTON']:
 					isButton = True
 				else:
@@ -257,11 +263,11 @@ if __name__ == '__main__':
 	precompute_calc.load()
 
 	# Create a socket connection to the engine.
-	print 'Connecting to %s:%d' % (args.host, args.port)
+	debugPrint('Connecting to %s:%d' % (args.host, args.port))
 	try:
 		s = socket.create_connection((args.host, args.port))
 	except socket.error as e:
-		print 'Error connecting! Aborting'
+		debugPrint('Error connecting! Aborting')
 		exit()
 
 	bot = Player(s)

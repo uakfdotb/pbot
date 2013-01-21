@@ -165,55 +165,55 @@ class Player(threading.Thread):
  
 					elif isButton and amountRaised == 0:
 						myAction = getBet(betType, minBet, maxBet, 10, amountRaised)
-
+					
 					else:
 						if pot_size < 50:
 							if section == 'pre':
-								equities = [0.55, 0.35]
+								equities = [0.38, 0.30]
 							elif section == 'flop':
-								equities = [0.55, 0.33]
+								equities = [0.41, 0.33]
 							elif section == 'turn':
-								equities = [0.55, 0.33]
+								equities = [0.48, 0.33]
 							elif section == 'river':
-								equities = [0.6, 0.40]
+								equities = [0.58, 0.40]
 							
 							if equity > equities[0]:
 								myAction = getBet(betType, minBet, maxBet, 15, amountRaised)
 							elif equity > equities[1] or overrideCheck:
-								myAction = getBet(betType, minBet, maxBet, 3, amountRaised)
+								myAction = getBet(betType, minBet, maxBet, 10, amountRaised)
 						elif pot_size < 100:
 							if section == 'pre':
-								equities = [0.55, 0.20]
+								equities = [0.48, 0.20]
 							elif section == 'flop':
-								equities = [0.65, 0.40]
+								equities = [0.50, 0.40]
 							elif section == 'turn':
-								equities = [0.75, 0.45]
+								equities = [0.54, 0.45]
 							elif section == 'river':
-								equities = [0.75, 0.50]
+								equities = [0.63, 0.50]
 							
 							if equity > equities[0] :
 								# raise more than the pot
-								myAction = getBet(betType, minBet, maxBet, 60, amountRaised)
+								myAction = getBet(betType, minBet, maxBet, pot_size + 60, amountRaised)
 							elif equity > equities[1] or overrideCheck:
 								# raise 5
-								myAction = getBet(betType, minBet, maxBet, 5, amountRaised)
+								myAction = getBet(betType, minBet, maxBet, pot_size + 5, amountRaised)
 						elif pot_size < 160:
 							if section == 'pre':
-								equities = [0.65, 0.55]
+								equities = [0.49, 0.39]
 							elif section == 'flop':
-								equities = [0.70, 0.60]
+								equities = [0.55, 0.42]
 							elif section == 'turn':
-								equities = [0.75, 0.65]
+								equities = [0.61, 0.48]
 							elif section == 'river':
-								equities = [0.80, 0.70]
+								equities = [0.68, 0.56]
 							
 							if equity > equities[0]:
 								myAction = getBet(betType, minBet, maxBet, maxBet, amountRaised)
 							elif equity > equities[1] or overrideCheck:
 								# raise 20
-								myAction = getBet(betType, minBet, maxBet, 20, amountRaised)
+								myAction = getBet(betType, minBet, maxBet, (pot_size*.5) + 30, amountRaised)
 						else:
-							if (equity > 0.65 or overrideCheck):
+							if (equity > 0.56 or overrideCheck):
 								# raise 50
 								myAction = getBet(betType, minBet, maxBet, 50, amountRaised)
 

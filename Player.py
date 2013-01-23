@@ -9,18 +9,22 @@ from pbot import pbots_calc
 from pbot import precompute_calc
 
 DEBUG = True
+lastRaised = 0 # keep track of how much we put in so we can find old_pot
 
 def debugPrint(string):
 	if DEBUG:
 		print string
 
 def getBet(betType, minBet, maxBet, myBet, amountRaised):
+	global lastRaised
+	
 	if betType == "RAISE":
 		myBet += amountRaised
 	
 	actualBet = max(minBet, min(maxBet, myBet))
 	
 	if actualBet > 0:
+		lastRaised = actualBet
 		return betType + ":" + str(actualBet)
 	else:
 		return "CALL"
@@ -107,12 +111,16 @@ class Player(threading.Thread):
 					
 					# check how much the opponent raised by, if any
 					amountRaised = 0
+					opponentRaised = False
 					
 					for action in packet['LASTACTIONS'][1:]:
 						actionSplit = action.split(":")
 						
 						if actionSplit[0] == "BET" or actionSplit[0] == "RAISE":
 							amountRaised += int(actionSplit[1])
+							
+							if actionSplit[0] == "RAISE":
+								opponentRaised = True
 			
 			
 					# check min/max we can bet/raise by
@@ -129,6 +137,12 @@ class Player(threading.Thread):
 							
 							minBet = int(actionSplit[1])
 							maxBet = int(actionSplit[2])
+					
+					# let old_pot be the pot size before raise
+					old_pot = pot_size - amountRaised
+					
+					if opponentRaised:
+						old_pot += lastRaised
 					
 					# detect pre-flop, flop, turn, river
 					section = ''
@@ -147,6 +161,7 @@ class Player(threading.Thread):
 					debugPrint("pbot_ my equity: " + str(equity))
 					debugPrint("pbot_ opponent raised: " + str(amountRaised))
 					debugPrint("pbot_ pot: " + str(pot_size))
+					debugPrint("pbot_ old pot: " + str(old_pot))
 					debugPrint("pbot_ bettype: " + betType)
 					debugPrint("pbot_ minbet: " + str(minBet))
 					debugPrint("pbot_ maxbet: " + str(maxBet))
@@ -156,7 +171,7 @@ class Player(threading.Thread):
 					# if the amountRaised is low, then override check and call it
 					overrideCheck = False
 					
-					if pot_size > 0 and amountRaised / pot_size < 0.3:
+					if old_pot > 0 and amountRaised / old_pot < 0.3:
 						overrideCheck = True
 					
 					# based on pot size and equity, determine whether to bet or call or check/fold
@@ -173,7 +188,7 @@ class Player(threading.Thread):
 						myAction = getBet(betType, minBet, maxBet, maxBet, amountRaised)
 					
 					else:
-						if pot_size < 50:
+						if old_pot < 100:
 							if section == 'pre':
 								equities = [0.55, 0.35]
 							elif section == 'flop':
@@ -184,10 +199,13 @@ class Player(threading.Thread):
 								equities = [0.6, 0.40]
 							
 							if equity > equities[0]:
-								myAction = getBet(betType, minBet, maxBet, 15, amountRaised)
+								if section == 'pre' or section == 'flop':
+									myAction = getBet(betType, minBet, maxBet, 20, amountRaised)
+								else:
+									myAction = getBet(betType, minbet, maxBet, 50, amountRaised)
 							elif equity > equities[1] or overrideCheck:
 								myAction = getBet(betType, minBet, maxBet, 10, amountRaised)
-						elif pot_size < 100:
+						elif old_pot < 200:
 							if section == 'pre':
 								equities = [0.55, 0.20]
 							elif section == 'flop':
@@ -200,13 +218,13 @@ class Player(threading.Thread):
 							if equity > equities[0] :
 								# raise more than the pot
 								if random.random() < 0.5:
-									myAction = getBet(betType, minBet, maxBet, 60, amountRaised)
+									myAction = getBet(betType, minBet, maxBet, 100, amountRaised)
 								else:
-									myAction = getBet(betType, minBet, maxBet, 30, amountRaised)
+									myAction = getBet(betType, minBet, maxBet, 40, amountRaised)
 							elif equity > equities[1] or overrideCheck:
 								# raise 5
 								myAction = getBet(betType, minBet, maxBet, 5, amountRaised)
-						elif pot_size < 160:
+						elif old_pot < 320:
 							if section == 'pre':
 								equities = [0.70, 0.55]
 							elif section == 'flop':
@@ -220,7 +238,7 @@ class Player(threading.Thread):
 								if random.random() < 0.5:
 									myAction = getBet(betType, minBet, maxBet, maxBet, amountRaised)
 								else:
-									myAction = getBet(betType, minBet, maxBet, 50, amountRaised)
+									myAction = getBet(betType, minBet, maxBet, 40, amountRaised)
 							elif equity > equities[1] or overrideCheck:
 								# raise 20
 								myAction = getBet(betType, minBet, maxBet, 30, amountRaised)

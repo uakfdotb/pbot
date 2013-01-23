@@ -199,7 +199,10 @@ class Player(threading.Thread):
 							
 							if equity > equities[0] :
 								# raise more than the pot
-								myAction = getBet(betType, minBet, maxBet, 60, amountRaised)
+								if random.random() < 0.5:
+									myAction = getBet(betType, minBet, maxBet, 60, amountRaised)
+								else:
+									myAction = getBet(betType, minBet, maxBet, 30, amountRaised)
 							elif equity > equities[1] or overrideCheck:
 								# raise 5
 								myAction = getBet(betType, minBet, maxBet, 5, amountRaised)
@@ -214,7 +217,10 @@ class Player(threading.Thread):
 								equities = [0.67, 0.60]
 							
 							if equity > equities[0]:
-								myAction = getBet(betType, minBet, maxBet, maxBet, amountRaised)
+								if random.random() < 0.5:
+									myAction = getBet(betType, minBet, maxBet, maxBet, amountRaised)
+								else:
+									myAction = getBet(betType, minBet, maxBet, 50, amountRaised)
 							elif equity > equities[1] or overrideCheck:
 								# raise 20
 								myAction = getBet(betType, minBet, maxBet, 30, amountRaised)

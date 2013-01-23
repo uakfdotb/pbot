@@ -39,6 +39,8 @@ class Player(threading.Thread):
 		
 		myhand = ''
 		discarded = ''
+		myBankRoll = 0
+		isButton = False
 		
 		while True:
 			# Block until the engine sends us a packet.
@@ -148,6 +150,7 @@ class Player(threading.Thread):
 					debugPrint("pbot_ bettype: " + betType)
 					debugPrint("pbot_ minbet: " + str(minBet))
 					debugPrint("pbot_ maxbet: " + str(maxBet))
+					debugPrint("pbot_ isButton: " + str(isButton))
 					debugPrint("=================")
 					
 					# if the amountRaised is low, then override check and call it
@@ -159,21 +162,15 @@ class Player(threading.Thread):
 					# based on pot size and equity, determine whether to bet or call or check/fold
 					myAction = "CHECK"
 
-					if random.random() < 0.1 and equity > 0.2:
+					if myBankRoll < -4000:
+						# override if we're losing too much money to this guy
+						if myBankRoll < -8000:
+							myAction = "CHECK"
+						else:
+							myAction = getBet(betType, minBet, maxBet, maxBet, amountRaised)
+
+					elif random.random() < 0.1 and equity > 0.2:
 						myAction = getBet(betType, minBet, maxBet, maxBet, amountRaised)
-					
-					elif haveSB and amountRaised == 0:
-						if equity > 0.75:
-							myAction = getBet(betType, minBet, maxBet, 60, amountRaised)
-						elif equity > 0.65:
-							myAction = getBet(betType, minBet, maxBet, 40, amountRaised)
-						elif equity > 0.55:
-							myAction = getBet(betType, minBet, maxBet, 20, amountRaised)
-						elif equity > 0.33:
-							myAction = getBet(betType, minBet, maxBet, 10, amountRaised)
- 
-					elif isButton and amountRaised == 0:
-						myAction = getBet(betType, minBet, maxBet, 5, amountRaised)
 					
 					else:
 						if pot_size < 50:
@@ -194,7 +191,7 @@ class Player(threading.Thread):
 							if section == 'pre':
 								equities = [0.55, 0.20]
 							elif section == 'flop':
-								equities = [0.65, 0.40]
+								equities = [0.65, 0.50]
 							elif section == 'turn':
 								equities = [0.75, 0.45]
 							elif section == 'river':
@@ -212,9 +209,9 @@ class Player(threading.Thread):
 							elif section == 'flop':
 								equities = [0.70, 0.60]
 							elif section == 'turn':
-								equities = [0.75, 0.65]
+								equities = [0.68, 0.65]
 							elif section == 'river':
-								equities = [0.80, 0.70]
+								equities = [0.67, 0.60]
 							
 							if equity > equities[0]:
 								myAction = getBet(betType, minBet, maxBet, maxBet, amountRaised)
@@ -234,17 +231,12 @@ class Player(threading.Thread):
 				discarded = ''
 				
 				debugPrint("pbot_ got new hand: " + myhand)
-				if packet['BUTTON']:
+				if packet['BUTTON'] == "true":
 					isButton = True
 				else:
 					isButton = False
-
-			elif packet['PACKETNAME'] == "NEWGAME":
-				if packet['BIGBLIND']:
-					haveSB  = False
-				else:
-					haveSB = True
 				
+				myBankRoll = packet['MYBANK']
 
 			elif packet['PACKETNAME'] == "REQUESTKEYVALUES":
 				# At the end, the engine will allow your bot save key/value pairs.

@@ -8,7 +8,7 @@ from pbot import parse_packets
 from pbot import pbots_calc
 from pbot import precompute_calc
 
-DEBUG = True
+DEBUG = False
 lastRaised = 0 # keep track of how much we put in so we can find old_pot
 
 def debugPrint(string):
@@ -202,7 +202,7 @@ class Player(threading.Thread):
 								if section == 'pre' or section == 'flop':
 									myAction = getBet(betType, minBet, maxBet, 20, amountRaised)
 								else:
-									myAction = getBet(betType, minbet, maxBet, 50, amountRaised)
+									myAction = getBet(betType, minBet, maxBet, 50, amountRaised)
 							elif equity > equities[1] or overrideCheck:
 								myAction = getBet(betType, minBet, maxBet, 10, amountRaised)
 						elif old_pot < 200:

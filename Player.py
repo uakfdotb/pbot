@@ -193,13 +193,13 @@ class Player(threading.Thread):
 					else:
 						if old_pot < 100:
 							if section == 'pre':
-								equities = [0.60, 0.55]
+								equities = [0.55, 0.33]
 							elif section == 'flop':
-								equities = [0.66, 0.57]
+								equities = [0.57, 0.38]
 							elif section == 'turn':
-								equities = [0.68, 0.59]
+								equities = [0.59, 0.40]
 							elif section == 'river':
-								equities = [0.68, 0.61]
+								equities = [0.6, 0.42]
 							
 							if equity > equities[0]:
 								if section == 'pre' or section == 'flop':
@@ -210,13 +210,13 @@ class Player(threading.Thread):
 								myAction = getBet(betType, minBet, maxBet, 10, amountRaised)
 						elif old_pot < 200:
 							if section == 'pre':
-								equities = [0.70, 0.65]
+								equities = [0.68, 0.47]
 							elif section == 'flop':
-								equities = [0.74, 0.69]
+								equities = [0.72, 0.56]
 							elif section == 'turn':
-								equities = [0.79, 0.74]
+								equities = [0.76, 0.61]
 							elif section == 'river':
-								equities = [0.84, 0.79]
+								equities = [0.77, 0.67]
 							
 							if equity > equities[0] :
 								# raise more than the pot
@@ -229,13 +229,13 @@ class Player(threading.Thread):
 								myAction = getBet(betType, minBet, maxBet, 5, amountRaised)
 						elif old_pot < 320:
 							if section == 'pre':
-								equities = [0.79, 0.73]
+								equities = [0.74, 0.72]
 							elif section == 'flop':
-								equities = [0.80, 0.75]
+								equities = [0.75, 0.69]
 							elif section == 'turn':
-								equities = [0.83, 0.76]
+								equities = [0.80, 0.71]
 							elif section == 'river':
-								equities = [0.86, 0.78]
+								equities = [0.84, 0.75]
 							
 							if equity > equities[0]:
 								if random.random() < 0.5:

@@ -177,12 +177,15 @@ class Player(threading.Thread):
 					# based on pot size and equity, determine whether to bet or call or check/fold
 					myAction = "CHECK"
 
-					if myBankRoll < -4000:
-						# override if we're losing too much money to this guy
-						if myBankRoll < -8000:
-							myAction = "CHECK"
-						else:
+					if myBankRoll < -1000:
+						if equity > 0.75:
+							myAction = getBet(betType, minBet, maxBet, 100, amountRaised)
+						elif equity > 0.80:
+							myAction = getBet(betType, minBet, maxBet, 150, amountRaised)
+						elif equity > 0.90:
 							myAction = getBet(betType, minBet, maxBet, maxBet, amountRaised)
+						else:
+							myAction = "CHECK"
 
 					elif random.random() < 0.1 and equity > 0.2:
 						myAction = getBet(betType, minBet, maxBet, maxBet, amountRaised)

@@ -197,9 +197,9 @@ class Player(threading.Thread):
 							elif section == 'flop':
 								equities = [0.66, 0.57]
 							elif section == 'turn':
-								equities = [0.72, 0.59]
+								equities = [0.68, 0.59]
 							elif section == 'river':
-								equities = [0.79, 0.61]
+								equities = [0.68, 0.61]
 							
 							if equity > equities[0]:
 								if section == 'pre' or section == 'flop':

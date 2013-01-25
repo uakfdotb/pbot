@@ -8,7 +8,7 @@ from pbot import parse_packets
 from pbot import pbots_calc
 from pbot import precompute_calc
 
-DEBUG = False
+DEBUG = True
 lastRaised = 0 # keep track of how much we put in so we can find old_pot
 
 def debugPrint(string):

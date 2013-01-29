@@ -45,6 +45,12 @@ class Player(threading.Thread):
 		discarded = ''
 		myBankRoll = 0
 		isButton = False
+
+		totalcall=0
+		totalcheck=0
+		totalfold=0
+		totalraise=0
+		totalactions=0
 		
 		while True:
 			# Block until the engine sends us a packet.
@@ -65,7 +71,31 @@ class Player(threading.Thread):
 			# illegal action.
 			# When sending responses, terminate each response with a newline
 			# character (\n) or your bot will hang!
-			if packet['PACKETNAME'] == "GETACTION":
+			if packet['PACKETNAME'] == "NEWGAME":
+				oppname=packet['OPPNAME']
+
+			elif packet['PACKETNAME'] == "GETACTION":
+				
+				if len(packet['LASTACTIONS'])>0:
+					for action in packet['LASTACTIONS']:
+						if oppname in action:
+							totalactions+=1
+							if 'CALL' in action:
+								totalcall+=1
+							elif 'CHECK' in action:
+								totalcheck+=1
+							elif 'FOLD' in action:
+								totalfold+=1
+							elif 'RAISE' in action:
+								totalraise+=1
+								
+				#Statistical percentages of opp's actions.
+				if totalactions>=0:
+					percentcall=float(totalcall)/float(totalactions)
+					percentcheck=float(totalcheck)/float(totalactions)
+					percentfold=float(totalfold)/float(totalactions)
+					percentraise=float(totalraise)/float(totalactions)
+				
 				if len(packet['LEGALACTIONS']) == 1:
 					# since we only have one legal action, we take it no matter what
 					
@@ -268,6 +298,12 @@ class Player(threading.Thread):
 			elif packet['PACKETNAME'] == "REQUESTKEYVALUES":
 				# At the end, the engine will allow your bot save key/value pairs.
 				# Send FINISH to indicate you're done.
+				debugPrint("===========================")
+				debugPrint("PERCENTCALL: "+str(percentcall))
+                                debugPrint("PERCENTCHECK: "+str(percentcheck))
+				debugPrint("PERCENTFOLD: "+str(percentfold))
+				debugPrint("PERCENTRAISE: "+str(percentraise))
+				debugPrint("===========================")
 				s.send("FINISH\n")
 		# Clean up the socket.
 		s.close()

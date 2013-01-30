@@ -73,6 +73,7 @@ class Player(threading.Thread):
 			# character (\n) or your bot will hang!
 			if packet['PACKETNAME'] == "NEWGAME":
 				oppname=packet['OPPNAME']
+				hands = packet['#HANDS']
 
 			elif packet['PACKETNAME'] == "GETACTION":
 				
@@ -209,14 +210,49 @@ class Player(threading.Thread):
 
 					if myBankRoll < -1000:
 						if equity > 0.75:
-							myAction = getBet(betType, minBet, maxBet, 100, amountRaised)
+							myAction = getBet(betType, minBet, maxBet, 110, amountRaised)
 						elif equity > 0.80:
-							myAction = getBet(betType, minBet, maxBet, 150, amountRaised)
+							myAction = getBet(betType, minBet, maxBet, 160, amountRaised)
 						elif equity > 0.90:
 							myAction = getBet(betType, minBet, maxBet, maxBet, amountRaised)
 						else:
 							myAction = "CHECK"
+					
+					elif myBankRoll>300 and percentcall>0.5 and hands>50:
+							if equity>0.70:
+								myAction = getBet(betType, minBet, maxBet, 150, amountRaised)
+							elif equity>0.75:
+								myAction = getBet(betType, minBet, maxBet, maxBet, amountRaised)
+							else: 
+								myAction = 	getBet(betType, minBet, maxBet, 20, amountRaised)
 
+					elif myBankRoll< -500 and percentcall>0.5 and hands>50:
+							if equity>0.80:
+								myAction = getBet(betType, minBet, maxBet, maxBet, amountRaised)
+							elif equity>0.70:
+								myAction = getBet(betType, minBet, maxBet, 30, amountRaised)
+							else:
+								myAction = "CHECK"
+
+					elif myBankRoll>300 and percentraise>0.5 and hands>50:
+							if equity>0.70:
+								myAction = getBet(betType, minBet, maxBet, 200, amountRaised)
+							elif equity>0.75:
+								myAction = getBet(betType, minBet, maxBet, maxBet, amountRaised)
+							else: 
+								myAction = 	getBet(betType, minBet, maxBet, 20, amountRaised)
+
+					elif myBankRoll< -500 and percentraise>0.5 and hands>50:
+							if equity>0.80:
+								myAction = getBet(betType, minBet, maxBet, maxBet, amountRaised)
+							elif equity>0.70:
+								myAction = "CALL"
+							else:
+								myAction = "CHECK"
+
+					elif myBankRoll>200 and percentfold>0.45 and hands>50:
+							myAction = getBet(betType, minBet, maxBet, 50, amountRaised)
+				
 					elif random.random() < 0.1 and equity > 0.2:
 						myAction = getBet(betType, minBet, maxBet, maxBet, amountRaised)
 					
@@ -300,7 +336,7 @@ class Player(threading.Thread):
 				# Send FINISH to indicate you're done.
 				debugPrint("===========================")
 				debugPrint("PERCENTCALL: "+str(percentcall))
-                                debugPrint("PERCENTCHECK: "+str(percentcheck))
+                debugPrint("PERCENTCHECK: "+str(percentcheck))
 				debugPrint("PERCENTFOLD: "+str(percentfold))
 				debugPrint("PERCENTRAISE: "+str(percentraise))
 				debugPrint("===========================")

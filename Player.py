@@ -336,7 +336,7 @@ class Player(threading.Thread):
 				# Send FINISH to indicate you're done.
 				debugPrint("===========================")
 				debugPrint("PERCENTCALL: "+str(percentcall))
-                debugPrint("PERCENTCHECK: "+str(percentcheck))
+                		debugPrint("PERCENTCHECK: "+str(percentcheck))
 				debugPrint("PERCENTFOLD: "+str(percentfold))
 				debugPrint("PERCENTRAISE: "+str(percentraise))
 				debugPrint("===========================")

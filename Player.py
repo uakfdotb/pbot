@@ -322,7 +322,7 @@ class Player(threading.Thread):
 			elif packet['PACKETNAME'] == "NEWHAND":
 				myhand = ''.join(packet['HAND'])
 				discarded = ''
-				hands = packet['#HANDS']
+				hands = packet['HANDID']
 				
 				debugPrint("pbot_ got new hand: " + myhand)
 				if packet['BUTTON'] == "true":

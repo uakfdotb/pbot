@@ -90,7 +90,7 @@ class Player(threading.Thread):
 								totalraise+=1
 								
 				#Statistical percentages of opp's actions.
-				if totalactions>=0:
+				if totalactions>0:
 					percentcall=float(totalcall)/float(totalactions)
 					percentcheck=float(totalcheck)/float(totalactions)
 					percentfold=float(totalfold)/float(totalactions)

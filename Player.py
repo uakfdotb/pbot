@@ -73,7 +73,6 @@ class Player(threading.Thread):
 			# character (\n) or your bot will hang!
 			if packet['PACKETNAME'] == "NEWGAME":
 				oppname=packet['OPPNAME']
-				
 
 			elif packet['PACKETNAME'] == "GETACTION":
 				
@@ -337,7 +336,7 @@ class Player(threading.Thread):
 				# Send FINISH to indicate you're done.
 				debugPrint("===========================")
 				debugPrint("PERCENTCALL: "+str(percentcall))
-                debugPrint("PERCENTCHECK: "+str(percentcheck))
+                		debugPrint("PERCENTCHECK: "+str(percentcheck))
 				debugPrint("PERCENTFOLD: "+str(percentfold))
 				debugPrint("PERCENTRAISE: "+str(percentraise))
 				debugPrint("===========================")

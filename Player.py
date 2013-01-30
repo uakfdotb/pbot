@@ -73,7 +73,7 @@ class Player(threading.Thread):
 			# character (\n) or your bot will hang!
 			if packet['PACKETNAME'] == "NEWGAME":
 				oppname=packet['OPPNAME']
-				hands = packet['#HANDS']
+				
 
 			elif packet['PACKETNAME'] == "GETACTION":
 				
@@ -322,6 +322,7 @@ class Player(threading.Thread):
 			elif packet['PACKETNAME'] == "NEWHAND":
 				myhand = ''.join(packet['HAND'])
 				discarded = ''
+				hands = packet['#HANDS']
 				
 				debugPrint("pbot_ got new hand: " + myhand)
 				if packet['BUTTON'] == "true":
